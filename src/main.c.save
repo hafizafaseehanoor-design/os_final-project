@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include "parser.h"
+
+#define MAX_INPUT 1024
+
+int main() {
+    char input[MAX_INPUT];
+
+    while (1) {
+        printf("myshell> ");
+        fflush(stdout);
+
+        if (fgets(input, MAX_INPUT, stdin) == NULL) {
+            printf("\n");
+            break;
+        }
+
+        input[strcspn(input, "\n")] = '\0';
+
+
+        if (strlen(input) == 0)
+            continue;
+
+        int count = 0;
+        char **tokens = tokenize(input, &count);
+
+        if (count == 0) {
+            free(tokens);
+            continue;
+        }
+
+        if (strcmp(tokens[0], "exit") == 0) {
+            for (int i = 0; i < count; i++) free(tokens[i]);
+            free(tokens);
+            break;
+        }
+
+        if (strcmp(tokens[0], "clear") == 0) {
+            printf("\033[2J\033[H");
+            for (int i = 0; i < count; i++) free(tokens[i]);
+            free(tokens);
+            continue;
+        }
+
+        if (strcmp(tokens[0], "help") == 0) {
+            printf("myshell built-in commands:\n");
+            printf("  help  - show this help message\n");
+            printf("  clear - clear screen\n");
+            printf("  exit  - exit the shell\n");
+            for (int i = 0; i < count; i++) free(tokens[i]);
+            free(tokens);
+            continue;
+        }
+
+        printf("TOKENS:\n");
+        for (int i = 0; i < count; i++) {
+            printf("  %s\n", tokens[i]);
+            free(tokens[i]);
+        }
+
+
+}
